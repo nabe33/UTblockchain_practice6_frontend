@@ -2,6 +2,8 @@
 
 東大ブロックチェーン公開講座の「スマコン開発学習」4回目演習
 
+講義資料は vue-cli だけど自分は Vite 使用
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
