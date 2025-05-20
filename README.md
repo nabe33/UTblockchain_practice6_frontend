@@ -1,6 +1,6 @@
 # UTblockchain_practice_contract
 
-東大ブロックチェーン公開講座の「スマコン開発学習」1回目演習
+東大ブロックチェーン公開講座の「スマコン開発学習」4回目演習
 
 This template should help get you started developing with Vue 3 in Vite.
 
