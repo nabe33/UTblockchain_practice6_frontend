@@ -1,44 +1,46 @@
 <script setup>
-defineProps({
-  msg: {
-    type: String,
-    required: true,
-  },
+import { ref, onMounted } from 'vue'
+import { numberService, incrementService } from '@/blockchain/contractService'
+
+const message = ref('Fetching data...')
+
+const getNumber = async () => {
+  const value = await numberService()
+  if (value) {
+    message.value = value
+  } else {
+    message.value = 'データの取得に失敗しました．'
+  }
+}
+
+const increment = async () => {
+  try {
+    const tx = await incrementService()
+    if (tx) {
+      console.log('increment()実行成功:', tx.hash)
+      await getNumber() // 更新された値を取得
+      message.value = 'Incremented successfully!'
+    } else {
+      console.error('increment()の呼び出しに失敗しました')
+    }
+  } catch (error) {
+    console.error('Vueコンポーネントでのエラー:', error)
+  }
+}
+
+onMounted(async () => {
+  await getNumber()
 })
 </script>
 
 <template>
-  <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
-    <h3>
-      You’ve successfully created a project with
-      <a href="https://vite.dev/" target="_blank" rel="noopener">Vite</a> +
-      <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
-    </h3>
+  <div>
+    <h1>{{ message }}</h1>
+    <button @click="getNumber">Get Contract Number</button>
+    <button @click="increment">Increment</button>
   </div>
 </template>
 
 <style scoped>
-h1 {
-  font-weight: 500;
-  font-size: 2.6rem;
-  position: relative;
-  top: -10px;
-}
-
-h3 {
-  font-size: 1.2rem;
-}
-
-.greetings h1,
-.greetings h3 {
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  .greetings h1,
-  .greetings h3 {
-    text-align: left;
-  }
-}
+/* 必要であればスタイルを記述 */
 </style>
