@@ -1,46 +1,97 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { numberService, incrementService } from '@/blockchain/ContractService'
+import { registerUserService, getUserService, getMyUserService } from '@/blockchain/ContractService'
 
 const message = ref('Fetching data...')
+const myName = ref('')
+const myAddress = ref('')
+const inputName = ref('')
+const searchAddress = ref('')
+const searchResult = ref(null)
+const searchError = ref('')
 
-const getNumber = async () => {
-  const value = await numberService()
-  if (value) {
-    message.value = value
+// 自分のユーザー情報取得
+const fetchMyUser = async () => {
+  message.value = '自分のユーザー情報を取得中...'
+  const result = await getMyUserService()
+  if (result && result.addr !== '0x0000000000000000000000000000000000000000') {
+    myName.value = result.name
+    myAddress.value = result.addr
+    message.value = '自分のユーザー情報を取得しました'
   } else {
-    message.value = 'データの取得に失敗しました．'
+    myName.value = ''
+    myAddress.value = ''
+    message.value = 'ユーザー情報が登録されていません'
   }
 }
 
-const increment = async () => {
-  try {
-    const tx = await incrementService()
-    if (tx) {
-      console.log('increment()実行成功:', tx.hash)
-      await getNumber() // 更新された値を取得
-      message.value = 'Incremented successfully!'
-    } else {
-      console.error('increment()の呼び出しに失敗しました')
-    }
-  } catch (error) {
-    console.error('Vueコンポーネントでのエラー:', error)
+// ユーザー登録
+const registerUser = async () => {
+  if (!inputName.value) {
+    message.value = '名前を入力してください'
+    return
+  }
+  message.value = 'ユーザー登録中...'
+  const tx = await registerUserService(inputName.value)
+  if (tx) {
+    message.value = 'ユーザー登録に成功しました'
+    await fetchMyUser()
+  } else {
+    message.value = 'ユーザー登録に失敗しました'
   }
 }
 
-onMounted(async () => {
-  await getNumber()
+// 指定アドレスのユーザー情報取得
+const searchUser = async () => {
+  searchError.value = ''
+  searchResult.value = null
+  if (!searchAddress.value) {
+    searchError.value = 'アドレスを入力してください'
+    return
+  }
+  const result = await getUserService(searchAddress.value)
+  if (result && result.addr !== '0x0000000000000000000000000000000000000000') {
+    searchResult.value = result
+  } else {
+    searchError.value = 'ユーザーが見つかりません'
+  }
+}
+
+onMounted(() => {
+  fetchMyUser()
 })
 </script>
 
 <template>
   <div>
-    <h1>{{ message }}</h1>
-    <button @click="getNumber">Get Contract Number</button>
-    <button @click="increment">Increment</button>
+    <h2>ユーザー登録デモ</h2>
+    <div>
+      <label>名前を登録/更新：</label>
+      <input v-model="inputName" placeholder="名前を入力" />
+      <button @click="registerUser">登録</button>
+    </div>
+    <div style="margin-top: 1em"><strong>メッセージ:</strong> {{ message }}</div>
+    <div style="margin-top: 1em">
+      <strong>自分のユーザー情報:</strong>
+      <div>名前: {{ myName }}</div>
+      <div>アドレス: {{ myAddress }}</div>
+    </div>
+    <hr />
+    <div>
+      <h3>アドレスでユーザー検索</h3>
+      <input v-model="searchAddress" placeholder="アドレスを入力" style="width: 350px" />
+      <button @click="searchUser">検索</button>
+      <div v-if="searchError" style="color: red">{{ searchError }}</div>
+      <div v-if="searchResult">
+        <div>名前: {{ searchResult.name }}</div>
+        <div>アドレス: {{ searchResult.addr }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* 必要であればスタイルを記述 */
+input {
+  margin-right: 0.5em;
+}
 </style>
