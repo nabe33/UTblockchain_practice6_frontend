@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { numberService, incrementService } from '@/blockchain/contractService'
+import { numberService, incrementService } from '@/blockchain/ContractService'
 
 const message = ref('Fetching data...')
 
