@@ -1,10 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=BIZ+UDGothic&family=BIZ+UDPGothic:wght@400;700&display=swap');
+
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
   --vt-c-white-mute: #f2f2f2;
 
-  --vt-c-black: #181818;
+  --vt-c-black: #494545;
   --vt-c-black-soft: #222222;
   --vt-c-black-mute: #282828;
 
@@ -18,7 +20,7 @@
   --vt-c-text-light-1: var(--vt-c-indigo);
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  --vt-c-text-dark-2: rgba(238, 238, 238, 0.95);
 }
 
 /* semantic color variables for this project */
@@ -67,6 +69,7 @@ body {
     background-color 0.5s;
   line-height: 1.6;
   font-family:
+    'BIZ UDPGothic',
     Inter,
     -apple-system,
     BlinkMacSystemFont,

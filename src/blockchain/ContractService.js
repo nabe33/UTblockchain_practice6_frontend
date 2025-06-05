@@ -70,36 +70,3 @@ export async function getMyUserService() {
     return null
   }
 }
-
-// Counterコントラクトのサービス関数
-/*
-export async function numberService() {
-  try {
-    const contract = new ethers.Contract(contractAddress, contractABI, provider)
-    const value = await contract.number()
-    return value.toString()
-  } catch (error) {
-    console.error('エラーが発生しました:', error)
-    return null
-  }
-}
-
-export async function incrementService() {
-  try {
-    const signer = await _connectWallet()
-    if (!signer) throw new Error('ウォレットが接続されていません')
-
-    const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer)
-    const tx = await contractWithSigner.increment()
-    console.log('トランザクション送信中:', tx.hash)
-
-    await tx.wait() // トランザクションがマイニングされるまで待機
-    console.log('トランザクションが完了しました:', tx.hash)
-
-    return tx
-  } catch (error) {
-    console.error('increment()の呼び出しエラー:', error)
-    return null
-  }
-}
-*/
