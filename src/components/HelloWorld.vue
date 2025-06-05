@@ -120,7 +120,7 @@ button:hover {
   background: #d5de5e;
 }
 strong {
-  font-weight: 900;
+  font-weight: 700;
 }
 .myUserInfo {
   margin-top: 2em;
