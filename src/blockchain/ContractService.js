@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import contractData from '@/blockchain/abi/UserStorage.json'
+import contractData from '@/blockchain/abi/AssetManager.json'
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS
 const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PROVIDER_URL)
 const contractABI = contractData.abi
@@ -24,49 +24,43 @@ async function _connectWallet() {
   }
 }
 
-// UserStorageコントラクトのサービス関数
-
-// ユーザー登録・更新
-export async function registerUserService(name) {
+// AssetManagerコントラクトのサービス関数
+// 任意のアドレスを登録
+export async function registAddressService(addr) {
   try {
     const signer = await _connectWallet()
     if (!signer) throw new Error('ウォレットが接続されていません')
-
-    const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer)
-    const tx = await contractWithSigner.registerUser(name)
-    console.log('ユーザー登録トランザクション送信中:', tx.hash)
+    const contract = new ethers.Contract(contractAddress, contractABI, signer)
+    const tx = await contract.registAddress(addr)
     await tx.wait()
-    console.log('ユーザー登録トランザクション完了:', tx.hash)
     return tx
   } catch (error) {
-    console.error('registerUserServiceエラー:', error)
+    console.error('registAddressServiceエラー:', error)
     return null
   }
 }
 
-// 指定アドレスのユーザー情報取得
-export async function getUserService(userAddr) {
+// 登録済みアドレスの数を取得
+export async function getRegisteredCountService() {
   try {
     const contract = new ethers.Contract(contractAddress, contractABI, provider)
-    const [name, addr] = await contract.getUser(userAddr)
-    return { name, addr }
+    const count = await contract.getRegisteredCount()
+    return count.toNumber ? count.toNumber() : Number(count)
+    // .toNumber()を使用して数値に変換．それが出来ない場合はNumber()で数値に変換
   } catch (error) {
-    console.error('getUserServiceエラー:', error)
+    console.error('getRegisteredCountServiceエラー:', error)
     return null
   }
 }
 
-// 自分自身のユーザー情報取得
-export async function getMyUserService() {
+// インデックス指定で登録済みアドレスを取得
+export async function getRegisteredAddressService(index) {
   try {
-    const signer = await _connectWallet()
-    if (!signer) throw new Error('ウォレットが接続されていません')
-
-    const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer)
-    const [name, addr] = await contractWithSigner.getMyUser()
-    return { name, addr }
+    const contract = new ethers.Contract(contractAddress, contractABI, provider)
+    const addr = await contract.getRegisteredAddress(index)
+    return addr
   } catch (error) {
-    console.error('getMyUserServiceエラー:', error)
+    console.error('getRegisteredAddressServiceエラー:', error)
     return null
   }
 }

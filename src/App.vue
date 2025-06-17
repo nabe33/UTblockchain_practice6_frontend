@@ -1,10 +1,10 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import AssetManager from './components/AssetManager.vue'
 </script>
 
 <template>
   <div id="app">
-    <HelloWorld />
+    <AssetManager />
   </div>
 </template>
 
