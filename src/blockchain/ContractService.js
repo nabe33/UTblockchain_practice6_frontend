@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { ethers, isAddress } from 'ethers'
 import contractData from '@/blockchain/abi/AssetManager.json'
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS
 const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PROVIDER_URL)
@@ -31,9 +31,24 @@ export async function registAddressService(addr) {
     const signer = await _connectWallet()
     if (!signer) throw new Error('ウォレットが接続されていません')
     const contract = new ethers.Contract(contractAddress, contractABI, signer)
-    const tx = await contract.registAddress(addr)
-    await tx.wait()
-    return tx
+    // アドレスの形式をチェック
+    console.log('ethers.utils: ' + ethers.utils)
+    if (!isAddress(addr)) {
+      alert('無効なアドレスです。正しいEthereumアドレスを入力してください。')
+      return null
+    }
+    try {
+      const tx = await contract.registAddress(addr)
+      await tx.wait()
+      return tx
+    } catch (error) {
+      // revert理由を取得
+      if (error.reason === 'Address already registered') {
+        alert('このアドレスはすでに登録されています。')
+      } else {
+        alert('登録時にエラーが発生しました: ' + error.message)
+      }
+    }
   } catch (error) {
     console.error('registAddressServiceエラー:', error)
     return null

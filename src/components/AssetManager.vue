@@ -12,6 +12,20 @@ const addressCount = ref(0)
 const addressList = ref([])
 const loading = ref(false)
 
+// MetaMaskからアドレスを取得
+const setMyAddress = async () => {
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+      inputAddress.value = accounts[0]
+    } catch (e) {
+      alert('アドレス取得に失敗しました' + e.message)
+    }
+  } else {
+    alert('MetaMaskがインストールされていません')
+  }
+}
+
 // アドレス登録
 const registerAddress = async () => {
   if (!inputAddress.value) {
@@ -59,7 +73,11 @@ onMounted(() => {
     <h2>アドレス登録デモ</h2>
     <div>
       <input v-model="inputAddress" placeholder="アドレスを入力" style="width: 400px" />
+
       <button @click="registerAddress" :disabled="loading">登録</button>
+    </div>
+    <div style="text-align: center">
+      <button @click="setMyAddress" id="myAddressButton">自分のアドレスを自動入力</button>
     </div>
     <div style="margin-top: 1em; margin-bottom: 1em; color: #2c3e50">{{ message }}</div>
     <hr />
@@ -74,6 +92,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
 .container {
   background: #249a57;
   width: 600px;
@@ -105,5 +127,14 @@ button:disabled {
 button:hover:enabled {
   box-shadow: 0 4px 16px rgba(44, 62, 80, 0.18);
   background: #d5de5e;
+}
+#myAddressButton {
+  margin-top: 0.5rem;
+  background: #f0f0f0;
+  color: #333;
+  padding: 0.4em 1em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 </style>
