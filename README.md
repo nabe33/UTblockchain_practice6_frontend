@@ -1,6 +1,6 @@
 # UTblockchain_practice_contract
 
-東大ブロックチェーン公開講座の「スマコン開発学習」演習6回目（スライド70）
+東大ブロックチェーン公開講座の「スマコン開発学習」演習5回目（スライド70）完了
 
 - 講義資料は vue-cli だけど自分は **Vite** 使用．Options APIでなくて**Compositions API**で記述．
 - AssetManager.vue と ContractService.jsが主体
