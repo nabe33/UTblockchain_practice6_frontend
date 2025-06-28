@@ -97,7 +97,7 @@ const getAsset = async () => {
   const result = await getAssetService(inputAddress.value)
   if (result !== null) {
     assetResult.value = result
-    message.value = `資産額: ${result} 円`
+    message.value = `自分の資産額: ${result} 円`
   } else {
     message.value = '資産取得に失敗しました'
     assetResult.value = null
@@ -125,16 +125,24 @@ onMounted(() => {
     <div style="margin-top: 1em; margin-bottom: 1em; color: #2c3e50">{{ message }}</div>
 
     <div style="margin-bottom: 1em">
-      <input
-        v-model="assetYen"
-        type="number"
-        min="0"
-        placeholder="加算する資産額（円）"
-        style="width: 200px"
-      />
-      <button @click="addAsset" :disabled="assetLoading">資産加算</button>
-      <button @click="getAsset" :disabled="assetLoading" style="margin-left: 1rem">資産取得</button>
-      <span v-if="assetResult !== null" style="margin-left: 1em">資産額: {{ assetResult }} 円</span>
+      <div>
+        <input
+          v-model="assetYen"
+          type="number"
+          min="0"
+          placeholder="加算する資産額（円）"
+          style="width: 200px"
+        />
+        <button @click="addAsset" :disabled="assetLoading">フォームのアドレスに資産加算</button>
+      </div>
+      <div style="margin-top: 1rem">
+        <button @click="getAsset" :disabled="assetLoading" style="margin-left: 2%">
+          自分のアドレスの資産取得
+        </button>
+        <span v-if="assetResult !== null" style="margin-left: 1em"
+          >自分の資産額: {{ assetResult }} 円</span
+        >
+      </div>
     </div>
     <hr />
     <div style="margin-top: 2em">
