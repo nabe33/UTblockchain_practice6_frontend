@@ -77,11 +77,22 @@ const addAsset = async () => {
   }
   assetLoading.value = true
   message.value = '資産加算中...'
-  const tx = await registAssetService(assetYen.value)
-  if (tx) {
-    message.value = '資産加算に成功しました'
-  } else {
-    message.value = '資産加算に失敗しました'
+  try {
+    const tx = await registAssetService(assetYen.value)
+    if (tx) {
+      message.value = '資産加算に成功しました'
+    } else {
+      message.value = '資産加算に失敗しました（呼び出しアドレスは登録済みである必要があります）'
+    }
+  } catch (error) {
+    // コントラクトのrevert理由などを表示
+    if (error && error.reason) {
+      message.value = 'エラー: ' + error.reason
+    } else if (error && error.message) {
+      message.value = 'エラー: ' + error.message
+    } else {
+      message.value = '予期しないエラーが発生しました'
+    }
   }
   assetLoading.value = false
 }
@@ -97,7 +108,7 @@ const getAsset = async () => {
   const result = await getAssetService(inputAddress.value)
   if (result !== null) {
     assetResult.value = result
-    message.value = `自分の資産額: ${result} 円`
+    message.value = `資産額: ${result} 円`
   } else {
     message.value = '資産取得に失敗しました'
     assetResult.value = null
@@ -105,7 +116,8 @@ const getAsset = async () => {
   assetLoading.value = false
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await setMyAddress()
   fetchAddressCount()
   fetchAddressList()
 })
@@ -120,7 +132,9 @@ onMounted(() => {
       <button @click="registerAddress" :disabled="loading">登録</button>
     </div>
     <div style="text-align: center">
-      <button @click="setMyAddress" id="myAddressButton">自分のアドレスを自動入力</button>
+      <button @click="setMyAddress" id="myAddressButton">
+        自アドレス{{ inputAddress ? `(${inputAddress})` : '' }}を自動入力
+      </button>
     </div>
     <div style="margin-top: 1em; margin-bottom: 1em; color: #2c3e50">{{ message }}</div>
 
@@ -133,14 +147,14 @@ onMounted(() => {
           placeholder="加算する資産額（円）"
           style="width: 200px"
         />
-        <button @click="addAsset" :disabled="assetLoading">フォームのアドレスに資産加算</button>
+        <button @click="addAsset" :disabled="assetLoading">自アドレスに資産加算</button>
       </div>
       <div style="margin-top: 1rem">
         <button @click="getAsset" :disabled="assetLoading" style="margin-left: 2%">
-          自分のアドレスの資産取得
+          フォームのアドレスの資産取得
         </button>
         <span v-if="assetResult !== null" style="margin-left: 1em"
-          >自分の資産額: {{ assetResult }} 円</span
+          >資産額: {{ assetResult }} 円</span
         >
       </div>
     </div>
