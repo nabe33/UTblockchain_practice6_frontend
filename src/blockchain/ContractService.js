@@ -79,3 +79,31 @@ export async function getRegisteredAddressService(index) {
     return null
   }
 }
+
+// 資産を加算する（登録済みアドレスのみ）
+export async function registAssetService(yen) {
+  try {
+    const signer = await _connectWallet()
+    if (!signer) throw new Error('ウォレットが接続されていません')
+    const contract = new ethers.Contract(contractAddress, contractABI, signer)
+    const tx = await contract.registAsset(yen)
+    await tx.wait()
+    return tx
+  } catch (error) {
+    console.error('registAssetServiceエラー:', error)
+    return null
+  }
+}
+
+// 指定アドレスの資産額を取得
+export async function getAssetService(addr) {
+  try {
+    const contract = new ethers.Contract(contractAddress, contractABI, provider)
+    const asset = await contract.getAsset(addr)
+    // assetはBigNumber型の場合が多いので数値に変換
+    return asset.toNumber ? asset.toNumber() : Number(asset)
+  } catch (error) {
+    console.error('getAssetServiceエラー:', error)
+    return null
+  }
+}
