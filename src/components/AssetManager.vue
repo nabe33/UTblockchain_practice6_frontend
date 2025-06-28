@@ -138,7 +138,7 @@ onMounted(async () => {
     </div>
     <div style="margin-top: 1em; margin-bottom: 1em; color: #2c3e50">{{ message }}</div>
 
-    <div style="margin-bottom: 1em">
+    <div style="margin-bottom: 1em; margin-top: 3em">
       <div>
         <input
           v-model="assetYen"
