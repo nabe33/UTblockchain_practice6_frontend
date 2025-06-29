@@ -175,7 +175,7 @@ export async function registerAssetWithHashService(yen, hashValue) {
       // hashValuesマッピングの確認（エラーを許容）
       try {
         const currentHash = await contract.getHashValue(signerAddress)  // getter関数を使用
-        // const currentHash = await contract.hashValues(signerAddress) // 旧形式（エラーが出る可能性あり）
+        // const currentHash = await contract.hashValues(signerAddress) // mappingを呼び出す旧形式（エラーが出る可能性あり）
         console.log('現在のハッシュ値:', currentHash)
         if (currentHash && currentHash !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
           console.warn('注意: このアドレスには既にハッシュ値が登録されています:', currentHash)
