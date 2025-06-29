@@ -4,8 +4,9 @@ import {
   registAddressService,
   getRegisteredCountService,
   getRegisteredAddressService,
-  registAssetService,
-  getAssetService,
+  registerAssetWithHashService,
+  getAssetWithHashService,
+  calculateFileSHA256,
 } from '@/blockchain/ContractService'
 
 const inputAddress = ref('')
@@ -18,6 +19,12 @@ const loading = ref(false)
 const assetYen = ref('')
 const assetResult = ref(null)
 const assetLoading = ref(false)
+
+// ファイル関連
+const selectedFile = ref(null)
+const fileHash = ref('')
+const hashLoading = ref(false)
+const fileInputRef = ref(null)
 
 // MetaMaskからアドレスを取得
 const setMyAddress = async () => {
@@ -69,23 +76,73 @@ const fetchAddressList = async () => {
   }
 }
 
-// 資産加算
-const addAsset = async () => {
+// ファイル選択
+const selectFile = () => {
+  fileInputRef.value?.click()
+}
+
+// ファイル選択時の処理
+const onFileSelect = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  selectedFile.value = file
+  message.value = `選択されたファイル: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`
+
+  // 自動的にハッシュを計算
+  await calculateHash()
+}
+
+// ファイルのSHA256ハッシュを計算
+const calculateHash = async () => {
+  if (!selectedFile.value) {
+    message.value = 'ファイルが選択されていません'
+    return
+  }
+
+  hashLoading.value = true
+  message.value = 'ハッシュ計算中...'
+
+  try {
+    const hash = await calculateFileSHA256(selectedFile.value)
+    fileHash.value = hash
+    message.value = `ハッシュ計算完了: ${hash.substring(0, 20)}...`
+  } catch (error) {
+    message.value = 'ハッシュ計算に失敗しました: ' + error.message
+    fileHash.value = ''
+  } finally {
+    hashLoading.value = false
+  }
+}
+
+// 資産とハッシュ値を登録
+const addAssetWithHash = async () => {
   if (!assetYen.value) {
     message.value = '加算する金額を入力してください'
     return
   }
+  if (!fileHash.value) {
+    message.value = 'ファイルを選択してハッシュを計算してください'
+    return
+  }
+
   assetLoading.value = true
-  message.value = '資産加算中...'
+  message.value = '資産とハッシュ値登録中...'
+
   try {
-    const tx = await registAssetService(assetYen.value)
+    const tx = await registerAssetWithHashService(assetYen.value, fileHash.value)
     if (tx) {
-      message.value = '資産加算に成功しました'
+      message.value = '資産とハッシュ値の登録に成功しました'
+      assetYen.value = ''
+      selectedFile.value = null
+      fileHash.value = ''
+      if (fileInputRef.value) {
+        fileInputRef.value.value = ''
+      }
     } else {
-      message.value = '資産加算に失敗しました（呼び出しアドレスは登録済みである必要があります）'
+      message.value = '資産とハッシュ値の登録に失敗しました'
     }
   } catch (error) {
-    // コントラクトのrevert理由などを表示
     if (error && error.reason) {
       message.value = 'エラー: ' + error.reason
     } else if (error && error.message) {
@@ -93,8 +150,9 @@ const addAsset = async () => {
     } else {
       message.value = '予期しないエラーが発生しました'
     }
+  } finally {
+    assetLoading.value = false
   }
-  assetLoading.value = false
 }
 
 // 資産取得
@@ -105,10 +163,10 @@ const getAsset = async () => {
   }
   assetLoading.value = true
   message.value = '資産取得中...'
-  const result = await getAssetService(inputAddress.value)
+  const result = await getAssetWithHashService(inputAddress.value)
   if (result !== null) {
-    assetResult.value = result
-    message.value = `資産額: ${result} 円`
+    assetResult.value = result.asset
+    message.value = `資産額: ${result.asset} 円, ハッシュ値: ${result.hashValue.substring(0, 20)}...`
   } else {
     message.value = '資産取得に失敗しました'
     assetResult.value = null
@@ -139,6 +197,38 @@ onMounted(async () => {
     <div style="margin-top: 1em; margin-bottom: 1em; color: #2c3e50">{{ message }}</div>
 
     <div style="margin-bottom: 1em; margin-top: 3em">
+      <!-- ファイル選択とハッシュ計算 -->
+      <div style="margin-bottom: 1.5em; padding: 1em; background: rgba(255, 255, 255, 0.1); border-radius: 8px;">
+        <h3 style="margin-bottom: 1em; color: #2c3e50;">ファイル選択とハッシュ計算</h3>
+        <input
+          ref="fileInputRef"
+          type="file"
+          @change="onFileSelect"
+          style="display: none"
+        />
+        <button @click="selectFile" :disabled="hashLoading" style="margin-right: 1em;">
+          ファイル選択
+        </button>
+        <button
+          @click="calculateHash"
+          :disabled="!selectedFile || hashLoading"
+          v-if="selectedFile"
+        >
+          ハッシュ再計算
+        </button>
+
+        <div v-if="selectedFile" style="margin-top: 1em; font-size: 0.9em;">
+          <strong>選択ファイル:</strong> {{ selectedFile.name }}<br>
+          <strong>サイズ:</strong> {{ (selectedFile.size / 1024).toFixed(2) }} KB
+        </div>
+
+        <div v-if="fileHash" style="margin-top: 1em; font-size: 0.9em; word-break: break-all;">
+          <strong>SHA256ハッシュ:</strong><br>
+          <code style="background: rgba(0,0,0,0.1); padding: 0.2em; border-radius: 4px;">{{ fileHash }}</code>
+        </div>
+      </div>
+
+      <!-- 資産登録 -->
       <div>
         <input
           v-model="assetYen"
@@ -147,7 +237,9 @@ onMounted(async () => {
           placeholder="加算する資産額（円）"
           style="width: 200px"
         />
-        <button @click="addAsset" :disabled="assetLoading">自アドレスに資産加算</button>
+        <button @click="addAssetWithHash" :disabled="assetLoading || !fileHash">
+          資産とハッシュ値を登録
+        </button>
       </div>
       <div style="margin-top: 1rem">
         <button @click="getAsset" :disabled="assetLoading" style="margin-left: 2%">
@@ -214,5 +306,13 @@ button:hover:enabled {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+}
+h3 {
+  margin: 0;
+  font-size: 1.1em;
 }
 </style>

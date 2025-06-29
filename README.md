@@ -1,10 +1,10 @@
 # UTblockchain_practice_contract
 
-東大ブロックチェーン公開講座の「スマコン開発学習」演習5回目（スライド70）完了
+東大ブロックチェーン公開講座の「スマコン開発学習」演習6回目（スライド81）完了
 
-- 講義資料は vue-cli だけど自分は **Vite** 使用．Options APIでなくて**Compositions API**で記述．
+- 講義資料は vue-cli だけど自分は **Vite** (Vue3)使用．Options APIでなくて**Compositions API**で記述．
 - AssetManager.vue と ContractService.jsが主体
-- This template should help get you started developing with Vue 3 in Vite.
+- ハッシュ値の扱いでエラーになったのでコントラクト側でハッシュ値のゲッター関数を定義してそれを利用．エラー原因を見つけるために様々なエラーハンドリングも書き込まれている．
 
 ## Recommended IDE Setup
 
