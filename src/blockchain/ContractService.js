@@ -5,9 +5,16 @@ import contractData from '@/blockchain/abi/AssetManager.json'
 export async function calculateFileSHA256(file) {
   try {
     const buffer = await file.arrayBuffer()
+    // デバッグ用のログ出力
+    console.log('=== calculateFileSHA256 開始 ===')
+    console.log('buffer:', buffer)
+    // Web Crypto APIを使用してSHA256ハッシュを計算
     const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
+    console.log('hashBuffer:', hashBuffer)
     const hashArray = Array.from(new Uint8Array(hashBuffer))
+    console.log('hashArray:', hashArray)
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    console.log('hashHex:', hashHex)
     return '0x' + hashHex
   } catch (error) {
     console.error('SHA256計算エラー:', error)
